@@ -5,8 +5,9 @@
     "\\Data Structures\\Advanced",
     "\\Data Structures\\Basics",
     "\\Data Structures\\Basics\\Heaps,BinarySearchTree",
-    "\\Data Structures\\Basics\\Linear Structures",
-    "\\Data Structures\\Basics\\Trees Representation"
+    "\\Data Structures\\Basics\\Heaps,BinarySearchTree\\Exercises",
+    "\\Data Structures\\Basics\\Linear Structures"
   ],
+  "SelectedNode": "\\Data Structures",
   "PreviewInSolutionExplorer": false
 }
