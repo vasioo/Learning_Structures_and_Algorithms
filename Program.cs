@@ -1,90 +1,75 @@
-﻿namespace ConnectedAreasInMatrix
+﻿namespace Cinema
 {
     internal class Program
     {
-        private static char[,] matrix;
-        private static int size = 0;
+        private static string[] names;
+        private static Dictionary<int, string> dictionary;
+        private static List<string> namesOfPeopleWhoDontCare;
+        private static bool[] isUsed;
 
         static void Main(string[] args)
         {
-            int rows = int.Parse(Console.ReadLine());
-            int cols = int.Parse(Console.ReadLine());
+            names = Console.ReadLine().Split(", ");
+            string[] input = Console.ReadLine().Split(" - ");
 
-            matrix = new char[rows, cols];
+            dictionary = new Dictionary<int, string>();
+            namesOfPeopleWhoDontCare = new List<string>(names);
 
-            for (int i = 0; i < rows; i++)
+            isUsed = new bool[names.Length];
+
+            while (input[0] != "generate")
             {
-                string elements = Console.ReadLine();
-
-                for (int c = 0; c < cols; c++)
-                {
-                    matrix[i, c] = elements[c];
-                }
+                dictionary.Add(Convert.ToInt32(input[1]), input[0]);
+                namesOfPeopleWhoDontCare.Remove(input[0]);
+                input = Console.ReadLine().Split(" - ");
             }
-            var areas = new List<Area>();
-            for (int r = 0; r < rows; r++)
+
+            Permutations(0);
+        }
+
+        private static void Permutations(int index)
+        {
+            if (index >= namesOfPeopleWhoDontCare.Count)
             {
-                for (int c = 0; c < cols; c++)
+                string[] output = new string[names.Length];
+
+                int insiderIndex = 0;
+
+                for (int i = 0; i < names.Length; i++)
                 {
-                    size = 0;
-                    ConnectedAreasInMatrix(r, c);
-                    if (size != 0)
+                    if (dictionary.ContainsKey(i + 1))
                     {
-                        areas.Add(new Area
-                        {
-                            Row = r,
-                            Col = c,
-                            Size = size
-                        });
+                        output[i]=dictionary[i + 1];
+                    }
+                    else if (output[i]==null)
+                    {
+                        output[i] = namesOfPeopleWhoDontCare[insiderIndex++];
                     }
                 }
-            }
-
-            var sorted 
-                = areas.OrderByDescending(a => a.Size)
-                .ThenBy(a => a.Row)
-                .ThenBy(a => a.Col)
-                .ToList();
-
-            Console.WriteLine($"Total areas found: {areas.Count}");
-            for (int i = 0; i < sorted.Count; i++)
-            {
-                var area = sorted[i];
-                Console.WriteLine($"Area #{i+1} at ({area.Row}, {area.Col}), size: {area.Size}");
-            }
-        }
-
-        //this method explores all of the matrix
-        private static void ConnectedAreasInMatrix(int row, int col)
-        {
-            if (IsOutsideOfMatrix(row, col) || IsWall(row, col) || IsVisited(row, col))
-            {
+                Console.WriteLine(string.Join(" ", output));
                 return;
             }
+            Permutations(index + 1);
 
-            size += 1;
-            matrix[row, col] = 'v';
+            var used = new HashSet<string> { namesOfPeopleWhoDontCare[index] };
 
-            //using backtracking to find all the elements that do not touch any walls using recursion
-            ConnectedAreasInMatrix(row - 1, col);//Up
-            ConnectedAreasInMatrix(row + 1, col);//Down
-            ConnectedAreasInMatrix(row, col - 1);//Left
-            ConnectedAreasInMatrix(row, col + 1);//Right
+            for (int i = index + 1; i < namesOfPeopleWhoDontCare.Count; i++)
+            {
+                if (!used.Contains(namesOfPeopleWhoDontCare[i]))
+                {
+                    Swap(index, i);
+                    Permutations(index + 1);
+                    Swap(index, i);
+
+                    used.Add(namesOfPeopleWhoDontCare[i]);
+                }
+            }
         }
-
-        private static bool IsVisited(int row, int col)
+        private static void Swap(int index, int i)
         {
-            return matrix[row, col] == 'v';
-        }
-
-        private static bool IsWall(int row, int col)
-        {
-            return matrix[row, col] == '*';
-        }
-
-        private static bool IsOutsideOfMatrix(int row, int col)
-        {
-            return row < 0 || col < 0 || row >= matrix.GetLength(0) || col >= matrix.GetLength(1);
+            var temp = namesOfPeopleWhoDontCare[index];
+            namesOfPeopleWhoDontCare[index] = namesOfPeopleWhoDontCare[i];
+            namesOfPeopleWhoDontCare[i] = temp;
         }
     }
 }
