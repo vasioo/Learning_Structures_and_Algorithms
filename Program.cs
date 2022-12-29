@@ -1,31 +1,53 @@
-﻿namespace Recursion_And_Backtracking
+﻿namespace Labyrinth
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            int n = int.Parse(Console.ReadLine());
+            int rows = int.Parse(Console.ReadLine());
+            int cols = int.Parse(Console.ReadLine());
 
-            int[] array = new int[n];
+            var lab = new char[rows, cols];
 
-            BitImplementation(array, 0);
-            //TODO DEBUG
+            for (int r = 0; r < rows; r++)
+            {
+                var colElements = Console.ReadLine();
+                for (int c = 0; c < cols; c++)
+                {
+                    lab[r, c] = colElements[c];
+                }
+            }
+            FindPaths(lab, 0, 0, new List<string>(), string.Empty);
         }
 
-        private static void BitImplementation(int[] array, int index)
+        private static void FindPaths(char[,] lab, int row, int col, List<string> directions, string direction)
         {
-            if (index >= array.Length)
+            //validation
+            if (row < 0 || row >= lab.GetLength(0) || col < 0 || col >= lab.GetLength(1))
             {
-                Console.WriteLine(string.Join(string.Empty, array));
                 return;
             }
-            //implements both 0 and 1 for a given position and whenever both of them are written
-            //we recursivly add different implementation for every other position
-            for (int i = 0; i < 2; i++)
+            //if this symbol is seen the process stops or the v is seen it has been visited
+            if (lab[row, col] == '*' || lab[row,col]=='v')
             {
-                array[index] = i;
-                BitImplementation(array, index + 1);
+                return;
             }
+            //if reaching the end we remove the combination 
+            if (lab[row, col] == 'e')
+            {
+                Console.WriteLine(string.Join(' ', directions));
+                directions.RemoveAt(directions.Count - 1);
+                return;
+            }
+            lab[row, col] = 'v';
+            directions.Add(direction);
+            FindPaths(lab, row - 1, col, directions, "U");//up
+            FindPaths(lab, row + 1, col, directions, "D");//down
+            FindPaths(lab, row, col - 1, directions, "L");//left
+            FindPaths(lab, row, col + 1, directions, "R");//right
+
+            lab[row, col] = '-';
+            directions.RemoveAt(directions.Count - 1);
         }
     }
 }
