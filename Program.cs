@@ -1,37 +1,37 @@
-﻿namespace Variations
+﻿namespace Combinations
 {
     internal class Program
     {
         private static int k;
         private static string[] elements;
-        private static string[] variations;
+        private static string[] combinations;
         private static bool[] isUsed;
         static void Main(string[] args)
         {
             elements = Console.ReadLine().Split();
             k = int.Parse(Console.ReadLine());
 
-            variations = new string[k];
+            combinations = new string[k];
             isUsed = new bool[elements.Length];
 
-            Variations(0);
+            Combinations(0,0);
         }
 
-        private static void Variations(int index)
+        private static void Combinations(int index,int elementsStartIndex)
         {
-            if (index>= variations.Length)
+            if (index >= combinations.Length)
             {
-                Console.WriteLine(string.Join(" ",variations));
+                Console.WriteLine(string.Join(" ", combinations));
                 return;
             }
 
-            for (int i = 0; i < elements.Length; i++)
+            for (int i = elementsStartIndex; i < elements.Length; i++)
             {
                 if (!isUsed[i])
                 {
                     //isUsed[i] = true;
-                    variations[index] = elements[i];
-                    Variations(index+1);
+                    combinations[index] = elements[i];
+                    Combinations(index + 1,i+1);
                     //isUsed[i] = false;
                 }
             }
