@@ -1,40 +1,22 @@
-﻿namespace Combinations
+﻿namespace Pascal_triangle
 {
     internal class Program
     {
-        private static int k;
-        private static string[] elements;
-        private static string[] combinations;
-        private static bool[] isUsed;
         static void Main(string[] args)
         {
-            elements = Console.ReadLine().Split();
-            k = int.Parse(Console.ReadLine());
+            int n = int.Parse(Console.ReadLine());
+            int k = int.Parse(Console.ReadLine());
 
-            combinations = new string[k];
-            isUsed = new bool[elements.Length];
-
-            Combinations(0,0);
+            Console.WriteLine(Binom(n,k));
         }
 
-        private static void Combinations(int index,int elementsStartIndex)
+        private static int Binom(int row, int col)
         {
-            if (index >= combinations.Length)
+            if (row<=1||col==0||col==row)
             {
-                Console.WriteLine(string.Join(" ", combinations));
-                return;
+                return 1;
             }
-
-            for (int i = elementsStartIndex; i < elements.Length; i++)
-            {
-                if (!isUsed[i])
-                {
-                    //isUsed[i] = true;
-                    combinations[index] = elements[i];
-                    Combinations(index + 1,i+1);
-                    //isUsed[i] = false;
-                }
-            }
+            return Binom(row - 1, col) + Binom(row - 1, col - 1);
         }
     }
 }
