@@ -1,71 +1,40 @@
-﻿namespace Permutations
+﻿namespace Variations
 {
     internal class Program
     {
-        private static string[] array;
-        private static HashSet<string> permutations;
+        private static int k;
+        private static string[] elements;
+        private static string[] variations;
         private static bool[] isUsed;
         static void Main(string[] args)
         {
-            array = Console.ReadLine().Split().ToArray();
-            Console.WriteLine("---------------");
-            permutations = new HashSet<string>();
-            //isUsed = new bool[array.Length];
+            elements = Console.ReadLine().Split();
+            k = int.Parse(Console.ReadLine());
 
-            PermuteWithoutRepetition(0);
+            variations = new string[k];
+            isUsed = new bool[elements.Length];
 
-
+            Variations(0);
         }
 
-        //private static void PermuteWithRepetition(int index)
-        //{
-        //    if (index >= permutations.Length)
-        //    {
-        //        Console.WriteLine(string.Join(" ", permutations));
-        //        return;
-        //    }
-
-        //    for (int i = 0; i < array.Length; i++)
-        //    {
-        //        if (!isUsed[i])
-        //        {
-        //            isUsed[i] = true;
-        //            permutations[index] = array[i];
-
-        //            PermuteWithRepetition(index + 1);
-        //            isUsed[i] = false;
-        //        }
-        //    }
-
-        private static void PermuteWithoutRepetition(int index)
+        private static void Variations(int index)
         {
-            if (index>=array.Length)
+            if (index>= variations.Length)
             {
-                Console.WriteLine(string.Join(" ",array));
+                Console.WriteLine(string.Join(" ",variations));
                 return;
             }
-            PermuteWithoutRepetition(index + 1);
-            
-            var used= new HashSet<string> { array[index] };
 
-            for (int i = index+1; i < array.Length; i++)
+            for (int i = 0; i < elements.Length; i++)
             {
-                if (!used.Contains(array[i]))
+                if (!isUsed[i])
                 {
-                    Swap(index, i);
-                    PermuteWithoutRepetition(index + 1);
-                    Swap(index, i);
-
-                    used.Add(array[i]);
+                    //isUsed[i] = true;
+                    variations[index] = elements[i];
+                    Variations(index+1);
+                    //isUsed[i] = false;
                 }
             }
-        }
-
-        private static void Swap(int index, int i)
-        {
-            var temp = array[index];
-            array[index] = array[i];
-            array[i] = temp;
         }
     }
 }
