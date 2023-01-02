@@ -1,96 +1,91 @@
-﻿namespace SourceRemovalAlgorithm
+﻿namespace ShortestPath
 {
     internal class Program
     {
-        private static Dictionary<string, List<string>> graph;
-        private static Dictionary<string, int> dependencies;
+        private static List<int>[] graph;
+        private static bool[] used;
+        private static int[] parent;
 
         static void Main(string[] args)
         {
-            var n = int.Parse(Console.ReadLine());
+            int n = int.Parse(Console.ReadLine());
+            int e = int.Parse(Console.ReadLine());
 
-            graph = ReadGraph(n);
+            graph = new List<int>[n + 1];
+            used = new bool[graph.Length];
+            parent = new int[graph.Length];
 
-            dependencies = ExtractDependencies(graph);
+            Array.Fill(parent, -1);
 
-            var sorted = new List<string>();    
-            while (dependencies.Count>0)
+            for (int node = 0; node < graph.Length; node++)
             {
-                var nodeToRemove = dependencies.FirstOrDefault(d => d.Value == 0).Key;
+                graph[node] = new List<int>();
+            }
+            for (int i = 0; i < e; i++)
+            {
+                var edge = Console.ReadLine()
+                    .Split()
+                    .Select(int.Parse)
+                    .ToArray();
 
-                if (nodeToRemove == null)
+                var firstNode = edge[0];
+                var secondNode = edge[1];
+
+                graph[firstNode].Add(secondNode);
+                graph[secondNode].Add(firstNode);
+            }
+
+            var start = int.Parse(Console.ReadLine());
+            var destination = int.Parse(Console.ReadLine());
+
+            BFS(start,destination);
+        }
+
+        private static void BFS(int startNode,int destination)
+        {
+            var queue= new Queue<int>();
+            queue.Enqueue(startNode);
+
+            used[startNode] = true;
+
+            while (queue.Count>0)
+            {
+                var node = queue.Dequeue();
+                if (node==destination)
                 {
+                    var path = GetPath(destination);
+
+                    Console.WriteLine($"Shortest path length is : {path.Count-1}");
+                    Console.WriteLine(string.Join(" ",path));
                     break;
                 }
-                dependencies.Remove(nodeToRemove);
-                sorted.Add(nodeToRemove);
+                Console.WriteLine(node);
 
-                foreach (var child in graph[nodeToRemove])
+                foreach (var child in graph[node])
                 {
-                    dependencies[child] -= 1;
-                }
-            }
-            if (dependencies.Count==0)
-            {
-                Console.WriteLine($"Topological sorting: {string.Join(", ", sorted)}");
-            }
-            else
-            {
-                Console.WriteLine("Invalid logical sorting");
-            }
-        }
-
-        private static Dictionary<string, int> ExtractDependencies(Dictionary<string, List<string>> _graph)
-        {
-            var result = new Dictionary<string,int>();
-            foreach (var kvp in _graph)
-            {
-                var node = kvp.Key;
-                var children = kvp.Value;
-
-                if (!result.ContainsKey(node)) 
-                {
-                    result[node] = 0;
-                }
-                foreach (var child in children)
-                {
-                    if (!result.ContainsKey(child))
+                    if (!used[child])
                     {
-                        result[child] = 1;
-                    }
-                    else
-                    {
-                        result[child] += 1;
+                        parent[child] = node;
+                        used[child] = true;
+                        queue.Enqueue(child);
                     }
                 }
             }
-            return result;
         }
 
-        private static Dictionary<string, List<string>> ReadGraph(int n)
+        private static Stack<int> GetPath(int destination)
         {
-            var result  = new Dictionary<string, List<string>>();
+            var path = new Stack<int>();
 
-            for (int i = 0; i < n; i++)
+            var index = destination;
+
+            while (index!=-1)
             {
-                var parts = Console.ReadLine()
-                    .Split("->", StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim())
-                    .ToArray();
-                var key = parts[0];
-
-                if (parts.Length==1)
-                {
-                    result[key] = new List<string>();
-                }
-                else
-                {
-                    var children = parts[1].Split(", ").ToList();
-
-                    result[key] = children;
-                }
+                path.Push(index);
+                index = parent[index];
             }
-            return result;
+
+            return path;
         }
     }
 }
