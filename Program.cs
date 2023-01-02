@@ -1,85 +1,70 @@
-﻿namespace AreasInMatrix
+﻿namespace AcyclicGraphs
 {
     internal class Program
     {
-        private static char[,] matrix;
-        private static bool[,] visited;
-        private static Dictionary<char, int> areas;
+        private static Dictionary<string, List<string>> graph;
+        private static HashSet<string> visited;
+        private static HashSet<string> isAcyclic;
 
         static void Main(string[] args)
         {
-            int n = int.Parse(Console.ReadLine());
-            int m = int.Parse(Console.ReadLine());
+            var input = Console.ReadLine().Split("-");
 
-            matrix = new char[n, m];
-            visited = new bool[n, m];
-            areas = new Dictionary<char, int>();
-
-            for (int row = 0; row < n; row++)
+            graph = new Dictionary<string, List<string>>();
+            visited = new HashSet<string>();
+            isAcyclic = new HashSet<string>();
+            while (input[0] != "End")
             {
-                string input = Console.ReadLine();
+                var from = input[0];
+                var to = input[1];
 
-                List<char> elements = new List<char>(input.ToCharArray());
-
-                for (int col = 0; col < m; col++)
+                if (!graph.ContainsKey(from))
                 {
-                    matrix[row, col] = elements[col];
+                    graph.Add(from, new List<string>());
                 }
-            }
 
-            for (int row = 0; row < n; row++)
-            {
-                for (int col = 0; col < m; col++)
+                if (!graph.ContainsKey(to))
                 {
-                    if (visited[row, col])
-                    {
-                        continue;
-                    }
-                    var parentNode = matrix[row, col];
-                    DFS(row, col, parentNode);
-
-                    if (areas.ContainsKey(parentNode))
-                    {
-                        areas[parentNode]++;
-                    }
-                    else
-                    {
-                        areas[parentNode] = 1;
-                    }
+                    graph.Add(to, new List<string>());
                 }
+
+                graph[from].Add(to);
+                input = Console.ReadLine().Split("-");
             }
-            int totalCounter = 0;
-            foreach (var area in areas)
+            try
             {
-                totalCounter += area.Value;
+                foreach (var node in graph.Keys)
+                {
+                    DFS(node);
+                }
+                Console.WriteLine($"Acyclic: Yes");
             }
-            Console.WriteLine($"Areas: {totalCounter}");
-            foreach (var area in areas)
+            catch (ArgumentException)
             {
-                Console.WriteLine($"Letter '{area.Key}' -> {area.Value}");
+                Console.WriteLine($"Acyclic: No");
+                throw;
             }
         }
-        private static void DFS(int row, int col, char parentNode)
+
+        private static void DFS(string node)
         {
-            if (row < 0 || row >= matrix.GetLength(0) 
-                || col < 0 || col >= matrix.GetLength(1))
+            if (isAcyclic.Contains(node))
             {
-                return;
+                throw new ArgumentException("A result cannot be returned");
             }
-            if (visited[row, col])
-            {
-                return;
-            }
-            if (matrix[row, col] != parentNode)
+            if (visited.Contains(node))
             {
                 return;
             }
 
-            visited[row,col] = true;
-            DFS(row, col - 1, parentNode);
-            DFS(row, col + 1, parentNode);
-            DFS(row - 1, col, parentNode);
-            DFS(row + 1, col, parentNode);
+            visited.Add(node);
+            isAcyclic.Add(node);
+
+            foreach (var child in graph[node])
+            {
+                DFS(child);
+            }
+            isAcyclic.Remove(node);
         }
     }
 }
