@@ -1,70 +1,73 @@
-﻿namespace AcyclicGraphs
+﻿namespace RoadReconstruction
 {
     internal class Program
     {
-        private static Dictionary<string, List<string>> graph;
-        private static HashSet<string> visited;
-        private static HashSet<string> isAcyclic;
+        private static List<int>[] graph;
+        private static List<Edge> edges;
+        private static bool[] visited;
 
         static void Main(string[] args)
         {
-            var input = Console.ReadLine().Split("-");
+            int numberOfBuildings = int.Parse(Console.ReadLine());
+            int numberOfStreets = int.Parse(Console.ReadLine());
 
-            graph = new Dictionary<string, List<string>>();
-            visited = new HashSet<string>();
-            isAcyclic = new HashSet<string>();
-            while (input[0] != "End")
+            graph = new List<int>[numberOfBuildings];
+            edges = new List<Edge>();
+            
+            for (int node = 0; node < graph.Length; node++)
             {
-                var from = input[0];
-                var to = input[1];
+                graph[node] = new List<int>();
+            }
+            for (int i = 0; i < numberOfStreets; i++)
+            {
+                var input = Console.ReadLine()
+                    .Split(" - ")
+                    .Select(int.Parse)
+                    .ToArray();
 
-                if (!graph.ContainsKey(from))
+                var first = input[0];
+                var second = input[1];
+
+                graph[first].Add(second);
+                graph[second].Add(first);
+
+                edges.Add(new Edge
                 {
-                    graph.Add(from, new List<string>());
+                    First = first,
+                    Second = second
+                });
+            }
+            Console.WriteLine("Important streets: ");
+            foreach (var edge in edges)
+            {
+                graph[edge.First].Remove(edge.Second);
+                graph[edge.Second].Remove(edge.First);
+
+                visited = new bool[graph.Length];
+
+                DFS(0);
+
+                if (visited.Contains(false))
+                {
+                    Console.WriteLine(edge);
                 }
 
-                if (!graph.ContainsKey(to))
-                {
-                    graph.Add(to, new List<string>());
-                }
-
-                graph[from].Add(to);
-                input = Console.ReadLine().Split("-");
-            }
-            try
-            {
-                foreach (var node in graph.Keys)
-                {
-                    DFS(node);
-                }
-                Console.WriteLine($"Acyclic: Yes");
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine($"Acyclic: No");
-                throw;
-            }
+                graph[edge.First].Add(edge.Second);
+                graph[edge.Second].Add(edge.First);
+            }      
         }
 
-        private static void DFS(string node)
+        private static void DFS(int node)
         {
-            if (isAcyclic.Contains(node))
-            {
-                throw new ArgumentException("A result cannot be returned");
-            }
-            if (visited.Contains(node))
+            if (visited[node])
             {
                 return;
             }
-
-            visited.Add(node);
-            isAcyclic.Add(node);
-
+            visited[node] = true;
             foreach (var child in graph[node])
             {
                 DFS(child);
             }
-            isAcyclic.Remove(node);
         }
     }
 }
