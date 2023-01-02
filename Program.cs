@@ -1,63 +1,96 @@
-﻿namespace BFS
+﻿namespace SourceRemovalAlgorithm
 {
     internal class Program
     {
-        private static List<int>[] graph;
-        private static bool[] visited;
+        private static Dictionary<string, List<string>> graph;
+        private static Dictionary<string, int> dependencies;
+
         static void Main(string[] args)
         {
-            int n = int.Parse(Console.ReadLine());
+            var n = int.Parse(Console.ReadLine());
 
-            graph = new List<int>[n];
-            visited = new bool[n];
+            graph = ReadGraph(n);
 
-            for (int node = 0; node < n; node++)
+            dependencies = ExtractDependencies(graph);
+
+            var sorted = new List<string>();    
+            while (dependencies.Count>0)
             {
-                var line = Console.ReadLine();
+                var nodeToRemove = dependencies.FirstOrDefault(d => d.Value == 0).Key;
 
-                if (string.IsNullOrEmpty(line))
+                if (nodeToRemove == null)
                 {
-                    graph[node] = new List<int>();
+                    break;
                 }
-                else
+                dependencies.Remove(nodeToRemove);
+                sorted.Add(nodeToRemove);
+
+                foreach (var child in graph[nodeToRemove])
                 {
-                    var children = line.Split().Select(int.Parse).ToList();
-                    graph[node] = children;
+                    dependencies[child] -= 1;
                 }
             }
-            for (int node = 0; node < graph.Length; node++)
+            if (dependencies.Count==0)
             {
-                if (visited[node])
-                {
-                    continue;
-                }
-                var component = new List<int>();
-                BFS(node, component);
-
-                Console.WriteLine($"Connected components {string.Join(" ", component)}");
+                Console.WriteLine($"Topological sorting: {string.Join(", ", sorted)}");
+            }
+            else
+            {
+                Console.WriteLine("Invalid logical sorting");
             }
         }
 
-        private static void BFS(int startNode, List<int> component)
+        private static Dictionary<string, int> ExtractDependencies(Dictionary<string, List<string>> _graph)
         {
-            var queue = new Queue<int>();
-            queue.Enqueue(startNode);
-
-            visited[startNode] = true;
-
-            while (queue.Count > 0)
+            var result = new Dictionary<string,int>();
+            foreach (var kvp in _graph)
             {
-                var node = queue.Dequeue();
-                component.Add(node);
-                foreach (var child in graph[node])
+                var node = kvp.Key;
+                var children = kvp.Value;
+
+                if (!result.ContainsKey(node)) 
                 {
-                    if (!visited[child])
+                    result[node] = 0;
+                }
+                foreach (var child in children)
+                {
+                    if (!result.ContainsKey(child))
                     {
-                        visited[child] = true;
-                        queue.Enqueue(child);
+                        result[child] = 1;
+                    }
+                    else
+                    {
+                        result[child] += 1;
                     }
                 }
             }
+            return result;
+        }
+
+        private static Dictionary<string, List<string>> ReadGraph(int n)
+        {
+            var result  = new Dictionary<string, List<string>>();
+
+            for (int i = 0; i < n; i++)
+            {
+                var parts = Console.ReadLine()
+                    .Split("->", StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .ToArray();
+                var key = parts[0];
+
+                if (parts.Length==1)
+                {
+                    result[key] = new List<string>();
+                }
+                else
+                {
+                    var children = parts[1].Split(", ").ToList();
+
+                    result[key] = children;
+                }
+            }
+            return result;
         }
     }
 }
