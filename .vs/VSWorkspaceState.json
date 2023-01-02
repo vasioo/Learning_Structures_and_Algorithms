@@ -1,11 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Algorithms",
-    "\\Algorithms\\Basics",
-    "\\Algorithms\\Basics\\Combinatorial Problems",
-    "\\Algorithms\\Basics\\Recursion"
+    "\\Algorithms\\Basics"
   ],
-  "SelectedNode": "\\Data Structures",
+  "SelectedNode": "\\Algorithms",
   "PreviewInSolutionExplorer": false
 }
