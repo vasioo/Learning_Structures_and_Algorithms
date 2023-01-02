@@ -1,43 +1,46 @@
-﻿namespace SetCover
+﻿namespace SumOfCoins
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            var universe = Console.ReadLine().Split().Select(int.Parse).ToHashSet();
-            var n = int.Parse(Console.ReadLine());
+            var coins = new Queue<int>(Console.ReadLine()
+                .Split(", ")
+                .Select(int.Parse)
+                .OrderByDescending(x => x));
 
-            var sets = new List<int[]>();
+            int needed = int.Parse(Console.ReadLine());
+            var usedCoins = new Dictionary<int, int>();
+            var totalCoins = 0;
 
-            for (int i = 0; i < n; i++)
+            while (needed > 0 && coins.Count > 0)
             {
-                var set = Console.ReadLine()
-                    .Split(", ")
-                    .Select(int.Parse)
-                    .ToArray();
+                var currentCoin = coins.Dequeue();
+                var count = needed / currentCoin;
 
-                sets.Add(set);
-            }
-            var selectedSets = new List<int[]>();   
-            while (universe.Count>0)
-            {
-                var set = sets.OrderByDescending(s => s.Count(e => universe.Contains(e)))
-                    .FirstOrDefault();
-
-                selectedSets.Add(set);
-
-                sets.Remove(set);
-
-                foreach (var item in set)
+                if (count == 0)
                 {
-                    universe.Remove(item);
+                    continue;
+                }
+
+                usedCoins[currentCoin] = count;
+                totalCoins += count;
+
+                needed %= currentCoin;
+            }
+
+            if (needed==0)
+            {
+                Console.WriteLine($"Number of coins to take: {totalCoins}");
+
+                foreach (var item in usedCoins)
+                {
+                    Console.WriteLine($"{item.Value} coin(s) with value {item.Key}");
                 }
             }
-            Console.WriteLine($"Sets to take ({selectedSets.Count}):");
-
-            foreach (var item in selectedSets)
+            else
             {
-                Console.WriteLine(string.Join(", ",item));
+                Console.WriteLine("Error");
             }
         }
     }
