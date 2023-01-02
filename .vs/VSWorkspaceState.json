@@ -1,15 +1,11 @@
 {
   "ExpandedNodes": [
     "",
+    "\\Algorithms",
     "\\Algorithms\\Basics",
-    "\\Algorithms\\Basics\\Combinatorial Problems\\Pascal_Triangle",
-    "\\Algorithms\\Basics\\Combinatorial Problems\\Permutations",
-    "\\Algorithms\\Basics\\Recursion",
-    "\\Data Structures\\Advanced",
-    "\\Data Structures\\Basics",
-    "\\Data Structures\\Basics\\Heaps,BinarySearchTree\\Exercises",
-    "\\Data Structures\\Basics\\Linear Structures",
-    "\\Data Structures\\Basics\\Linear Structures\\BetterQueue"
+    "\\Algorithms\\Basics\\Combinatorial Problems",
+    "\\Algorithms\\Basics\\Recursion"
   ],
+  "SelectedNode": "\\Data Structures",
   "PreviewInSolutionExplorer": false
 }
