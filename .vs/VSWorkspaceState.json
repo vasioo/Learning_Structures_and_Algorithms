@@ -1,8 +1,11 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Algorithms\\Basics"
+    "\\Algorithms",
+    "\\Algorithms\\Basics",
+    "\\Algorithms\\Basics\\Graph Theory",
+    "\\Algorithms\\Basics\\Graph Theory\\Exercises"
   ],
-  "SelectedNode": "\\Algorithms",
+  "SelectedNode": "\\Algorithms\\Basics\\Graph Theory\\Exercises\\SourceRemovalAlgorithm",
   "PreviewInSolutionExplorer": false
 }
