@@ -1,4 +1,4 @@
-﻿namespace SelectionSort
+﻿namespace BubbleSort
 {
     internal class Program
     {
@@ -6,32 +6,41 @@
         {
             var numbers = Console.ReadLine().Split().Select(int.Parse).ToArray();
 
-            SelectionSort(numbers);
+            BubbleSort(numbers);
 
             Console.WriteLine(string.Join(" ", numbers));
         }
 
-        private static void SelectionSort(int[] numbers)
+        private static void BubbleSort(int[] numbers)
         {
-            for (int i = 0; i < numbers.Length; i++)
+            var sortedCount = 0;
+            var isSorted = false;
+
+            while (!isSorted)
             {
-                var min = i;
-                for (int j = i+1; j < numbers.Length; j++)
+                isSorted = true;
+
+                //if we swap even once then it is not sorted
+                //can be done with two nested loops
+                for (int j = 1; j < numbers.Length - sortedCount; j++)
                 {
-                    if (numbers[j] < numbers[min])
+                    var i = j - 1;
+
+                    if (numbers[i] >numbers[j])
                     {
-                        min = j;
+                        Swap(numbers, i, j);
+                        isSorted = false;
                     }
                 }
-                Swap(numbers, i, min);
+                sortedCount++;
             }
         }
-
         private static void Swap(int[] numbers, int first, int second)
         {
             var temp = numbers[first];
             numbers[first] = numbers[second];
             numbers[second] = temp;
         }
+
     }
 }
