@@ -1,37 +1,37 @@
-﻿namespace BinarySearch
+﻿namespace SelectionSort
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            var numbers = new[] { 1, 5, 10, 15, 20, 30, 40, 50, 55, 60 };
+            var numbers = Console.ReadLine().Split().Select(int.Parse).ToArray();
 
-            Console.WriteLine(BinarySearch(numbers, 55));
+            SelectionSort(numbers);
+
+            Console.WriteLine(string.Join(" ", numbers));
         }
 
-        private static int BinarySearch(int[] numbers, int num)
+        private static void SelectionSort(int[] numbers)
         {
-            int left = 0;
-            int right = numbers.Length-1;
-
-            while (left<=right)
+            for (int i = 0; i < numbers.Length; i++)
             {
-                var mid = (left + right) / 2;
-
-                if (numbers[mid]==num)
+                var min = i;
+                for (int j = i+1; j < numbers.Length; j++)
                 {
-                    return mid;
+                    if (numbers[j] < numbers[min])
+                    {
+                        min = j;
+                    }
                 }
-                else if (numbers[mid]<num)
-                {
-                    left = mid + 1;
-                }
-                else
-                {
-                    right = mid - 1;
-                }
+                Swap(numbers, i, min);
             }
-            return -1;
+        }
+
+        private static void Swap(int[] numbers, int first, int second)
+        {
+            var temp = numbers[first];
+            numbers[first] = numbers[second];
+            numbers[second] = temp;
         }
     }
 }
