@@ -1,29 +1,47 @@
-﻿namespace AdjencyLists
+﻿namespace DFS
 {
     internal class Program
     {
+        private static Dictionary<int, List<int>> graph;
+        private static HashSet<int> visited;
+
         static void Main(string[] args)
         {
-            var graph = new List<int>[]
+            graph = new Dictionary<int, List<int>>
             {
-                new List<int>{3, 6},
-                new List<int>{2, 3, 4, 5, 6},
-                new List<int>{2, 4, 5},
-                new List<int>{0, 1, 5},
-                new List<int>{1, 2, 6},
-                new List<int>{1, 2, 3},
-                new List<int>{0, 1, 4}
+                {1, new List<int> {19, 21, 14}},
+                {19, new List<int> {7, 12, 31, 21}},
+                {7, new List<int> {1}},
+                {31, new List<int> {21}},
+                {21, new List<int> {14}},
+                {23, new List<int> {21}},
+                {14, new List<int> {23, 6}},
+                {12, new List<int> ()},
+                {6, new List<int> ()}
             };
 
-            Console.WriteLine(string.Join(" ", graph[0]));
+            visited = new HashSet<int>();
 
-            //how to add indices to the graph elements
-            var mapping = new Dictionary<string, int>
+            foreach (var node in graph.Keys)
             {
-                {"Sofia",1 },
-                {"Varna",2 }
-            };
-             
+                DFS(node);
+            }
+        }
+
+        private static void DFS(int node)
+        {
+            if (visited.Contains(node))
+            {
+                return;
+            }
+
+            visited.Add(node);
+
+            foreach (var child in graph[node])
+            {
+                DFS(child);
+            }
+            Console.WriteLine(node) ;
         }
     }
 }
