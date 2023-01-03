@@ -1,4 +1,4 @@
-﻿namespace SumOfAmountOfCoins
+﻿namespace SumWithLimitedCoins
 {
     internal class Program
     {
@@ -8,24 +8,30 @@
             int targetSum = int.Parse(Console.ReadLine());
 
             Console.WriteLine(CountTheSums(nums, targetSum));
-            //checkin how many ways it can be solved by making the number smaller as the logic applies forwards
         }
 
         private static int CountTheSums(int[] nums, int targetSum)
         {
-            //always start at 1 because the element 1 can be get to by adding 1
+            int counter = 0;
+            var sums = new HashSet<int> { 0 };
 
-            var sums = new int[targetSum + 1];
-            sums[0] = 1;
-
+            //adding all unique sums and counting them
             foreach (var num in nums)
             {
-                for (int sum = num; sum <= targetSum; sum++)
+                var newSums = new HashSet<int> ();
+                foreach (var sum in sums)
                 {
-                    sums[sum] += sums[sum - num];
+                    var newSum = sum + num;
+
+                    if (newSum==targetSum)
+                    {
+                        counter++;
+                    }
+                    newSums.Add(newSum);
                 }
+                sums.UnionWith(newSums);
             }
-            return sums[targetSum];
+            return counter;
         }
     }
 }
