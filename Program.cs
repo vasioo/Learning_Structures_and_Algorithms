@@ -1,50 +1,79 @@
-﻿namespace SubsetSum
+﻿namespace Move_Down_Right_Sum
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            int[] nums = new[] { 3, 5, 2 };
-            int targetSum = 54;
+            int rows = int.Parse(Console.ReadLine());
+            int cols = int.Parse(Console.ReadLine());
 
-            var sums = new bool[targetSum + 1];
-            sums[0] = true;
+            var matrix = new int[rows, cols];
 
-            for (int sum = 0; sum < sums.Length; sum++)
+            for (int r = 0; r < rows; r++)
             {
-                if (!sums[sum])
+                var rowElements = Console.ReadLine()
+                     .Split()
+                     .Select(int.Parse)
+                     .ToArray();
+                for (int c = 0; c < rowElements.Length; c++)
                 {
-                    continue;
-                }
-                foreach (var num in nums)
-                {
-                    var newSum = sum + num;
-
-                    if (newSum > targetSum)
-                    {
-                        continue;
-                    }
-                    sums[newSum] = true;
+                    matrix[r, c] = rowElements[c];
                 }
             }
-            var subset = new List<int>();
-            while (targetSum > 0)
+            var dynamicProgramming = new int[rows, cols];
+
+            dynamicProgramming[0, 0] = matrix[0, 0];
+
+            for (int c = 1; c < cols; c++)
             {
-                foreach (var num in nums)
+                dynamicProgramming[0, c] = dynamicProgramming[0, c - 1] + matrix[0, c];
+            }
+            for (int r = 1; r < rows; r++)
+            {
+                dynamicProgramming[r, 0] = dynamicProgramming[r - 1, 0] + matrix[r, 0];
+            }
+            for (int r = 1; r < rows; r++)
+            {
+                for (int c = 1; c < cols; c++)
                 {
-                    var preSum = targetSum - num;
-                    if (preSum >= 0 && sums[preSum])
-                    {
-                        subset.Add(num);
-                        targetSum = preSum;
-                        if (targetSum==0)
-                        {
-                            break;
-                        }
-                    }
+                    var upper = dynamicProgramming[r - 1, c];
+                    var left = dynamicProgramming[r, c - 1];
+
+                    dynamicProgramming[r, c] = Math.Max(left, upper) + matrix[r, c];
                 }
             }
-            Console.WriteLine(string.Join(", ",subset));
+            var path = new Stack<string>();
+            var row = rows - 1;
+            var col = cols - 1;
+
+            while (row > 0 && col > 0)
+            {
+                path.Push($"[{row},{col}]");
+                var upper = dynamicProgramming[row - 1, col];
+                var left = dynamicProgramming[row, col - 1];
+
+                if (upper > left)
+                {
+                    row--;
+                }
+                else
+                {
+                    col--;
+                }
+            }
+            while (row>0)
+            {
+                path.Push($"[{row},{col}]");
+                row--;
+            }
+            while (col>0)
+            {
+                path.Push($"[{row},{col}]");
+                col--;
+            }
+            path.Push($"[{row},{col}]");
+
+            Console.WriteLine(string.Join(" ",path));
         }
     }
 }
