@@ -1,37 +1,37 @@
-﻿namespace SumWithLimitedCoins
+﻿namespace WordDifferences
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            int[] nums = Console.ReadLine().Split().Select(int.Parse).ToArray();
-            int targetSum = int.Parse(Console.ReadLine());
+            string s1 = Console.ReadLine();
+            string s2 = Console.ReadLine();
 
-            Console.WriteLine(CountTheSums(nums, targetSum));
-        }
+            var dp = new int[s1.Length + 1, s2.Length + 1];
 
-        private static int CountTheSums(int[] nums, int targetSum)
-        {
-            int counter = 0;
-            var sums = new HashSet<int> { 0 };
-
-            //adding all unique sums and counting them
-            foreach (var num in nums)
+            for (int row = 1; row < dp.GetLength(0); row++)
             {
-                var newSums = new HashSet<int> ();
-                foreach (var sum in sums)
-                {
-                    var newSum = sum + num;
-
-                    if (newSum==targetSum)
-                    {
-                        counter++;
-                    }
-                    newSums.Add(newSum);
-                }
-                sums.UnionWith(newSums);
+                dp[row, 0] = row;
+            } 
+            for (int col = 1; col < dp.GetLength(1); col++)
+            {
+                dp[0, col] = col;
             }
-            return counter;
+            for (int row = 1; row < dp.GetLength(0); row++)
+            {
+                for (int col = 1; col < dp.GetLength(1); col++)
+                {
+                    if (s1[row - 1] == s2[col-1])
+                    {
+                        dp[row, col] = dp[row - 1, col-1];
+                    }
+                    else
+                    {
+                        dp[row, col] = Math.Min(dp[row - 1, col], dp[row,col-1])+1;
+                    }
+                }
+            }
+            Console.WriteLine("Deletions and Insertions: "+dp[s1.Length,s2.Length]);
         }
     }
 }
