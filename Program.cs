@@ -1,41 +1,29 @@
-﻿namespace Dynamic_Optimizitaion
+﻿namespace LongestCommonSubsequence
 {
     internal class Program
     {
-        private static Dictionary<int, long> cache = new Dictionary<int, long>();
-
         static void Main(string[] args)
         {
-            var n = int.Parse(Console.ReadLine());
-            Console.WriteLine(CalcFibonacci(n));
-        }
+            string input1 = Console.ReadLine();
+            string input2 = Console.ReadLine();
 
-        //private static long CalcFibonacci(int n)
-        //{
-        //    //using recursion it uses a lot of memory and at 50th element it stops
-        //    if (n == 1)
-        //    {
-        //        return 0;
-        //    }
-        //    if (n == 2)
-        //    {
-        //        return 1;
-        //    }
-        //    return CalcFibonacci(n - 1) + CalcFibonacci(n - 2);
-        //}
-        private static long CalcFibonacci(int n)
-        {
-            if (cache.ContainsKey(n))
+            var matrix = new int[input1.Length + 1, input2.Length + 1];
+
+            for (int r = 1; r < matrix.GetLength(0); r++)
             {
-                return cache[n];
+                for (int c = 1; c < matrix.GetLength(1); c++)
+                {
+                    if (input1[r - 1] == input2[c - 1])
+                    {
+                        matrix[r, c] = matrix[r - 1, c - 1] + 1;
+                    }
+                    else
+                    {
+                        matrix[r,c] = Math.Max(matrix[r, c - 1], matrix[r-1,c]);
+                    }
+                }
             }
-            if (n < 2)
-            {
-                return n;
-            }
-            var result = CalcFibonacci(n - 1) + CalcFibonacci(n - 2);
-            cache[n] = result;
-            return result;
+            Console.WriteLine(matrix[input1.Length,input2.Length]);
         }
     }
 }
