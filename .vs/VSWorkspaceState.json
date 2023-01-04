@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Algorithms",
+    "\\Algorithms\\Basics"
   ],
-  "SelectedNode": "\\Algorithms",
+  "SelectedNode": "\\Algorithms\\Basics\\Dynamic Programming",
   "PreviewInSolutionExplorer": false
 }
