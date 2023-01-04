@@ -1,15 +1,30 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class Node<T> where T : IComparable<T>
+namespace B_2_3_AVL
 {
-    public T Value;
-    public Node<T> Left;
-    public Node<T> Right;
-    public int Height;
-
-    public Node(T value)
+    internal class Node<T>
     {
-        this.Value = value;
-        this.Height = 1;
+        public T Value { get; private set; }
+
+        public Node<T> Parent { get; set; }
+
+        public List<Node<T>> Children { get; private set; }
+
+        public Node(T value)
+        {
+            Value = value;
+            Children = new List<Node<T>>();
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+
     }
 }
