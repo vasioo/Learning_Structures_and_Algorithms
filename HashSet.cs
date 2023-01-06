@@ -30,31 +30,31 @@ namespace Hashing_and_Collision
             this.table.AddOrReplace(key, key);
         }
 
+        // returns the collection with the distinct elements b/ween the 2
         public HashSet<TKey> UnionWith(HashSet<TKey> other)
         {
             return new HashSet<TKey>(other.table.Concat(this.table).Distinct());
         }
 
+        // returns all the same elements
         public HashSet<TKey> IntersectWith(HashSet<TKey> other)
         {
             return new HashSet<TKey>(this.table.Where(x => other.Contains(x.Key)));
         }
 
+        // returns the unique elements which are not contained in the second
         public HashSet<TKey> Except(HashSet<TKey> other)
         {
-
+            return new HashSet<TKey>(this.table.Where(x => !other.Contains(x.Key)));
         }
-        
+
+        // returns only the elements which are not in both the sets
         public HashSet<TKey> SymetricExcept(HashSet<TKey> other)
         {
-
+            return this.UnionWith(other).Except(this.IntersectWith(other));
         }
 
-        /// <summary>
-        /// sees if the key is contained in the collection
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
+        // sees if the key is contained in the collection
         public bool Contains(TKey key)
         {
             return this.table.ContainsKey(key);
