@@ -1,9 +1,13 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Algorithms",
-    "\\Algorithms\\Advanced"
+    "\\Data Structures",
+    "\\Data Structures\\Advanced",
+    "\\Data Structures\\Advanced\\2-3 Trees,AVL",
+    "\\Data Structures\\Advanced\\2-3 Trees,AVL\\AVL",
+    "\\Data Structures\\Advanced\\Augmentation",
+    "\\Data Structures\\Advanced\\Red-Black, AA\\Red Black"
   ],
-  "SelectedNode": "\\Algorithms\\Advanced\\Dyncamic Optimization",
+  "SelectedNode": "\\Data Structures\\Advanced\\2-3 Trees,AVL\\AVL\\AVL.cs",
   "PreviewInSolutionExplorer": false
 }
