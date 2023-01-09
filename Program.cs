@@ -1,4 +1,6 @@
-﻿namespace Kruskal
+﻿using Wintellect.PowerCollections;
+
+namespace Prim
 {
     public class Edge
     {
@@ -11,58 +13,62 @@
 
     internal class Program
     {
-        private static List<Edge> edges;
+        private static Dictionary<int, List<Edge>> edgesByNodes;
+        private static HashSet<int> forest;
 
         static void Main(string[] args)
         {
             var e = int.Parse(Console.ReadLine());
 
-            edges = ReadEdges(e);
+            edgesByNodes = ReadGraph(e);
 
-            var sortedEdges = edges.OrderBy(e => e.Weight).ToList();
-
-            //using union to add the second elements in the first collection to compare
-            var nodes = edges.Select(e => e.First)
-                 .Union(edges.Select(e => e.Second))
-                 .ToHashSet();
-
-            var parents = new int[nodes.Max() + 1];
-
-            foreach (var node in nodes)
+            foreach (var node in edgesByNodes.Keys)
             {
-                parents[node] = node;
+                if (!forest.Contains(node))
+                {
+                    Prim(node);
+                }
             }
+        }
 
-            foreach (var tree in sortedEdges)
+        private static void Prim(int node)
+        {
+            forest.Add(node);
+
+            var queue = new OrderedBag<Edge>(
+                edgesByNodes[node],
+                Comparer<Edge>.Create((f, s) => f.Weight - s.Weight));
+
+            while (queue.Count > 0)
             {
+                var edge = queue.RemoveFirst();
+                var nonTreeNode = -1;
 
-                var firstNodeRoot = GetRoot(parents, tree.First);
-                var secondNodeRoot = GetRoot(parents, tree.Second);
+                if (forest.Contains(edge.First) && !forest.Contains(edge.Second))
+                {
+                    nonTreeNode = edge.Second;
+                }
 
-                if (firstNodeRoot == secondNodeRoot)
+                else if (forest.Contains(edge.Second) && !forest.Contains(edge.First))
+                {
+                    nonTreeNode = edge.First;
+                }
+
+                if (nonTreeNode == -1)
                 {
                     continue;
                 }
 
-                Console.WriteLine($"{tree.First} - {tree.Second}");
+                Console.WriteLine($"{edge.First} - {edge.Second}");
 
-                //we do this so we dont get a loop
-                parents[firstNodeRoot] = secondNodeRoot;
+                forest.Add(nonTreeNode);
+                queue.AddMany(edgesByNodes[nonTreeNode]);
             }
         }
 
-        private static int GetRoot(int[] parents, int node)
+        private static Dictionary<int, List<Edge>> ReadGraph(int e)
         {
-            while (node != parents[node])
-            {
-                node = parents[node];
-            }
-            return node;
-        }
-
-        private static List<Edge> ReadEdges(int e)
-        {
-            var list = new List<Edge>();
+            var result = new Dictionary<int, List<Edge>>();
 
             for (int i = 0; i < e; i++)
             {
@@ -71,18 +77,32 @@
                     .Select(int.Parse)
                     .ToArray();
 
+
                 var firstNode = data[0];
                 var secondNode = data[1];
                 var weight = data[2];
 
-                list.Add(new Edge
+                if (!result.ContainsKey(firstNode))
+                {
+                    result.Add(firstNode, new List<Edge>());
+                }
+
+                if (!result.ContainsKey(secondNode))
+                {
+                    result.Add(secondNode, new List<Edge>());
+                }
+
+                var edge = new Edge
                 {
                     First = firstNode,
                     Second = secondNode,
                     Weight = weight
-                });
+                };
+
+                result[firstNode].Add(edge);
+                result[secondNode].Add(edge);
             }
-            return edges;
+            return result;
         }
     }
 }
