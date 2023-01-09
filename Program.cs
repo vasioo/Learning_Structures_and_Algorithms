@@ -1,4 +1,4 @@
-﻿namespace BellmanFord
+﻿namespace LongestPath
 {
     public class Edge
     {
@@ -7,18 +7,28 @@
         public int To { get; set; }
 
         public int Weight { get; set; }
+
+        public override string ToString()
+        {
+            return $"{this.From} {this.To} {this.Weight}";
+        }
     }
 
     internal class Program
     {
-        private static List<Edge> edges;
+        private static List<Edge>[] graph;
 
         static void Main(string[] args)
         {
             int nodes = int.Parse(Console.ReadLine());
             int edgesCount = int.Parse(Console.ReadLine());
 
-            edges = new List<Edge>();
+            graph = new List<Edge>[nodes + 1];
+
+            for (int i = 0; i < graph.Length; i++)
+            {
+                graph[i] = new List<Edge>();
+            }
 
             for (int i = 0; i < edgesCount; i++)
             {
@@ -28,7 +38,7 @@
                 var to = data[1];
                 var weight = data[2];
 
-                edges.Add(new Edge
+                graph[from].Add(new Edge
                 {
                     From = from,
                     To = to,
@@ -39,63 +49,74 @@
             var source = int.Parse(Console.ReadLine());
             var destination = int.Parse(Console.ReadLine());
 
-            var distance = new double[nodes + 1];
-            Array.Fill(distance, double.PositiveInfinity);
+            var sortedNodes = TopologicalSorting();
 
-            distance[source] = 0;
-            var prev = new int[nodes + 1];
+            var distances = new double[graph.Length];
+            Array.Fill(distances, double.NegativeInfinity);
+            distances[source] = 0;
+
+            var prev = new int[graph.Length];
             Array.Fill(prev, -1);
 
-            for (int i = 0; i < nodes - 1; i++)
+            //if we want to see the shortest path we have to change
+            //negativeInfinity and the > symbol to < in the if check
+            while (sortedNodes.Count > 0)
             {
-                var updated = false;
-                foreach (var edge in edges)
+                var node = sortedNodes.Pop();
+
+                foreach (var edge in graph[node])
                 {
-                    if (double.IsPositiveInfinity(edge.From))
-                    {
-                        continue;
-                    }
+                    var newDistance = distances[node] + edge.Weight;
 
-                    var newDistance = distance[edge.From] + edge.Weight;
-
-                    if (newDistance < distance[edge.To])
+                    if (newDistance > distances[edge.To])
                     {
-                        distance[edge.To] = newDistance;
-                        prev[edge.To] = edge.From;
-                        updated = true;
-                    }
-                }
-                if (!updated)
-                {
-                    break;
-                }
-                foreach (var edge in edges)
-                {
-                    if (double.IsPositiveInfinity(edge.From))
-                    {
-                        continue;
-                    }
-
-                    var newDistance = distance[edge.From] + edge.Weight;
-
-                    if (newDistance < distance[edge.To])
-                    {
-                        Console.WriteLine("Negative Cycle Detected");
-                        return;
+                        distances[edge.To] = newDistance;
+                        prev[edge.To] = node;
                     }
                 }
             }
+            Console.WriteLine(distances[destination]);
+            Console.WriteLine(string.Join(" ", GetPath(prev, destination)));
+        }
+
+        private static Stack<int> GetPath(int[] prev, int node)
+        {
             var path = new Stack<int>();
-            var node = destination;
 
             while (node != -1)
             {
                 path.Push(node);
                 node = prev[node];
             }
+            return path;
+        }
 
-            Console.WriteLine(string.Join(" ", path));
-            Console.WriteLine(distance[destination]);
+        private static Stack<int> TopologicalSorting()
+        {
+            var visited = new bool[graph.Length];
+            var sorted = new Stack<int>();
+
+            for (int node = 1; node < graph.Length; node++)
+            {
+                DFS(node, visited, sorted);
+            }
+
+            return sorted;
+        }
+
+        private static void DFS(int node, bool[] visited, Stack<int> sorted)
+        {
+            if (visited[node])
+            {
+                return;
+            }
+            visited[node] = true;
+
+            foreach (var edge in graph[node])
+            {
+                DFS(edge.To, visited, sorted);
+            }
+            sorted.Push(node);
         }
     }
 }
