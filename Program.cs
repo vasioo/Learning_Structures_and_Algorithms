@@ -1,32 +1,32 @@
-﻿namespace CheapTownTour
+﻿namespace Undefinded
 {
     public class Edge
     {
-        public int First { get; set; }
+        public int From { get; set; }
 
-        public int Second { get; set; }
+        public int To { get; set; }
 
         public int Weight { get; set; }
 
         public override string ToString()
         {
-            return $"{this.First} {this.Second} {this.Weight}";
+            return $"{this.From} {this.To} {this.Weight}";
         }
     }
 
     internal class Program
     {
-        private static List<Edge> graph;
+        private static List<Edge> edges;
 
-        //using Kruskal
+        //using Bellman-Ford
         static void Main(string[] args)
         {
-            int numberOfTowns = int.Parse(Console.ReadLine());
-            int numberOfStreets = int.Parse(Console.ReadLine());
+            int nodesCount = int.Parse(Console.ReadLine());
+            int edgesCount = int.Parse(Console.ReadLine());
 
             var result = new List<Edge>();
 
-            for (int i = 0; i < numberOfStreets; i++)
+            for (int i = 0; i < edgesCount; i++)
             {
                 var street = Console.ReadLine()
                     .Split(" - ")
@@ -39,47 +39,85 @@
 
                 result.Add(new Edge
                 {
-                    First = first,
-                    Second = second,
+                    From = first,
+                    To = second,
                     Weight = weigth,
                 });
             }
-            graph = result;
+            edges = result;
 
-            var sortedEdges = graph
-                .OrderBy(e => e.Weight)
-                .ToList();
+            var source = int.Parse(Console.ReadLine());
+            var destination = int.Parse(Console.ReadLine());
 
-            var root = new int[numberOfTowns];
+            var distances = new double[nodesCount + 1];
+            var prev = new int[nodesCount + 1];
 
-            for (int i = 0; i < numberOfTowns; i++)
+            for (int i = 0; i < distances.Length; i++)
             {
-                root[i] = i;
+                distances[i] = double.PositiveInfinity;
+                prev[i] = -1;
             }
-            var totalCost = 0;
 
-            foreach (var edge in sortedEdges)
+            distances[source] = 0;
+
+            for (int i = 0; i < nodesCount - 1; i++)
             {
-                var firstRoot = GetRoot(edge.First, root);
-                var secondRoot = GetRoot(edge.Second, root);
-
-                if (firstRoot != secondRoot)
+                var updated = false;
+                foreach (var edge in edges)
                 {
-                    root[firstRoot] = secondRoot;
-                    totalCost += edge.Weight;
+                    if (double.IsPositiveInfinity(distances[edge.From]))
+                    {
+                        continue;
+                    }
+
+                    var newDistance = distances[edge.From] + edge.Weight;
+
+                    if (newDistance < distances[edge.To])
+                    {
+                        distances[edge.To] = newDistance;
+                        prev[edge.To] = edge.From;
+                        updated = true;
+                    }
+                }
+
+                if (!updated)
+                {
+                    break;
                 }
             }
+            foreach (var edge in edges)
+            {
+                if (double.IsPositiveInfinity(distances[edge.From]))
+                {
+                    continue;
+                }
 
-            Console.WriteLine(totalCost);
+                var newDistance = distances[edge.From] + edge.Weight;
+
+                if (newDistance < distances[edge.To])
+                {
+                    Console.WriteLine("Undefined");
+                    return;
+                }
+            }
+            Console.WriteLine(distances[destination]);
+
+            var path = GetPath(prev, destination);
+
+            Console.WriteLine(string.Join("->", path));
         }
 
-        private static int GetRoot(int node, int[] root)
+        private static Stack<int> GetPath(int[] prev, int destination)
         {
-            while (node != root[node])
+            var result = new Stack<int>();
+
+            while (destination != -1)
             {
-                node = root[node];
+                result.Push(destination);
+                destination = prev[destination];
             }
-            return node;
+
+            return result;
         }
     }
 }
