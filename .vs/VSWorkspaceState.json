@@ -1,9 +1,13 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Data Structures",
+    "\\Algorithms",
+    "\\Algorithms\\Advanced",
+    "\\Algorithms\\Advanced\\Dyncamic Optimization",
+    "\\Algorithms\\Advanced\\Max Flow",
+    "\\Algorithms\\Basics",
     "\\Data Structures\\Advanced"
   ],
-  "SelectedNode": "\\Data Structures\\Advanced\\Red-Black, AA",
+  "SelectedNode": "\\Data Structures",
   "PreviewInSolutionExplorer": false
 }
