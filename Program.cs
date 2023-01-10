@@ -1,28 +1,34 @@
-﻿namespace Big_Trip
+﻿using Wintellect.PowerCollections;
+
+namespace CableNetwork
 {
     public class Edge
     {
-        public int From { get; set; }
+        public int First { get; set; }
 
-        public int To { get; set; }
+        public int Second { get; set; }
 
         public int Weight { get; set; }
 
         public override string ToString()
         {
-            return $"{this.From} {this.To} {this.Weight}";
+            return $"{this.First} {this.Second} {this.Weight}";
         }
     }
 
     internal class Program
     {
-        private static List<Edge>[] edges;
-        //using Longest Path Algorihtm
+        private static List<Edge>[] graph;
+        private static HashSet<int> spanningTree;
+
+        //using Prim 
         static void Main(string[] args)
         {
+            int budget = int.Parse(Console.ReadLine());
             int nodesCount = int.Parse(Console.ReadLine());
             int edgesCount = int.Parse(Console.ReadLine());
 
+            spanningTree = new HashSet<int>();
             var result = new List<Edge>[nodesCount + 1];
 
             for (int i = 0; i < result.Length; i++)
@@ -32,56 +38,83 @@
 
             for (int i = 0; i < edgesCount; i++)
             {
-                var street = Console.ReadLine()
-                    .Split(" - ")
-                    .Select(int.Parse)
-                    .ToArray();
+                var data = Console.ReadLine().Split();
 
-                var from = street[0];
-                var to = street[1];
-                var weigth = street[2];
+                var first = int.Parse(data[0]);
+                var second = int.Parse(data[1]);
+                var weigth = int.Parse(data[2]);
 
-                result[from].Add(new Edge
+                if (data.Length == 4)
                 {
-                    From = from,
-                    To = to,
+                    spanningTree.Add(first);
+                    spanningTree.Add(second);
+                }
+
+                var edge = new Edge
+                {
+                    First = first,
+                    Second = second,
                     Weight = weigth,
-                });
+                };
+                result[first].Add(edge);
+                result[second].Add(edge);
             }
-            edges = result;
+            graph = result;
 
             var source = int.Parse(Console.ReadLine());
             var destination = int.Parse(Console.ReadLine());
 
-            var distances = new double[edges.Length];
-            var prev = new int[edges.Length];
+           var usedBudget = Prim(budget);
 
-            Array.Fill(distances, double.NegativeInfinity);
-            Array.Fill(prev, -1);
+            Console.WriteLine(usedBudget);
+        }
 
-            distances[source] = 0;
+        private static int Prim(int budget)
+        {
+            var usedBudget = 0;
 
-            var sortedNodes = TopologicalSort();
+            var queue = new OrderedBag<Edge>(
+                Comparer<Edge>.Create((f, s) => f.Weight - s.Weight));
 
-            while (sortedNodes.Count > 0)
+            foreach (var node in spanningTree)
             {
-                var node = sortedNodes.Pop();
-
-                foreach (var edge in edges[node])
-                {
-                    var newDistance = distances[node] + edge.Weight ;
-
-                    if (newDistance > distances[edge.To])
-                    {
-                        prev[edge.To] = node;
-                        distances[edge.To] = newDistance;
-                    }
-                }
+                queue.AddMany(graph[node]);
             }
-            Console.WriteLine(distances[destination]);
-            var path = GetPath(prev, destination);
 
-            Console.WriteLine(string.Join("->", path));
+            while (queue.Count > 0)
+            {
+                var edge = queue.RemoveFirst();
+
+                var nonTreeNode = -1;
+
+                if (spanningTree.Contains(edge.First)
+                    && !spanningTree.Contains(edge.Second))
+                {
+                    nonTreeNode = edge.Second;
+                }
+                else if (!spanningTree.Contains(edge.First)
+                    && spanningTree.Contains(edge.Second))
+                {
+                    nonTreeNode = edge.First;
+                }
+
+                if (nonTreeNode == -1)
+                {
+                    continue;
+                }
+
+                if (edge.Weight > budget)
+                {
+                    break;
+                }
+
+                usedBudget += edge.Weight;
+                budget -= edge.Weight;
+
+                spanningTree.Add(nonTreeNode);
+                queue.AddMany(graph[nonTreeNode]);
+            }
+            return usedBudget;
         }
         private static Stack<int> GetPath(int[] prev, int destination)
         {
@@ -94,34 +127,6 @@
             }
 
             return result;
-        }
-
-        private static Stack<int> TopologicalSort()
-        {
-            var visited = new bool[edges.Length];
-            var sorted = new Stack<int>();
-
-            for (int i = 1; i < edges.Length; i++)
-            {
-                DFS(i, visited, sorted);
-            }
-            return sorted;
-        }
-
-        private static void DFS(int node, bool[] visited, Stack<int> sorted)
-        {
-            if (visited[node])
-            {
-                return;
-            }
-
-            visited[node] = true;
-
-            foreach (var edge in edges[node])
-            {
-                DFS(edge.To, visited, sorted);
-            }
-            sorted.Push(node);
         }
     }
 }
