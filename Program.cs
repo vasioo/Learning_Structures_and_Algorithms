@@ -1,4 +1,4 @@
-﻿namespace Undefinded
+﻿namespace Big_Trip
 {
     public class Edge
     {
@@ -16,15 +16,19 @@
 
     internal class Program
     {
-        private static List<Edge> edges;
-
-        //using Bellman-Ford
+        private static List<Edge>[] edges;
+        //using Longest Path Algorihtm
         static void Main(string[] args)
         {
             int nodesCount = int.Parse(Console.ReadLine());
             int edgesCount = int.Parse(Console.ReadLine());
 
-            var result = new List<Edge>();
+            var result = new List<Edge>[nodesCount + 1];
+
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = new List<Edge>();
+            }
 
             for (int i = 0; i < edgesCount; i++)
             {
@@ -33,14 +37,14 @@
                     .Select(int.Parse)
                     .ToArray();
 
-                var first = street[0];
-                var second = street[1];
+                var from = street[0];
+                var to = street[1];
                 var weigth = street[2];
 
-                result.Add(new Edge
+                result[from].Add(new Edge
                 {
-                    From = first,
-                    To = second,
+                    From = from,
+                    To = to,
                     Weight = weigth,
                 });
             }
@@ -49,64 +53,36 @@
             var source = int.Parse(Console.ReadLine());
             var destination = int.Parse(Console.ReadLine());
 
-            var distances = new double[nodesCount + 1];
-            var prev = new int[nodesCount + 1];
+            var distances = new double[edges.Length];
+            var prev = new int[edges.Length];
 
-            for (int i = 0; i < distances.Length; i++)
-            {
-                distances[i] = double.PositiveInfinity;
-                prev[i] = -1;
-            }
+            Array.Fill(distances, double.NegativeInfinity);
+            Array.Fill(prev, -1);
 
             distances[source] = 0;
 
-            for (int i = 0; i < nodesCount - 1; i++)
+            var sortedNodes = TopologicalSort();
+
+            while (sortedNodes.Count > 0)
             {
-                var updated = false;
-                foreach (var edge in edges)
+                var node = sortedNodes.Pop();
+
+                foreach (var edge in edges[node])
                 {
-                    if (double.IsPositiveInfinity(distances[edge.From]))
-                    {
-                        continue;
-                    }
+                    var newDistance = distances[node] + edge.Weight ;
 
-                    var newDistance = distances[edge.From] + edge.Weight;
-
-                    if (newDistance < distances[edge.To])
+                    if (newDistance > distances[edge.To])
                     {
+                        prev[edge.To] = node;
                         distances[edge.To] = newDistance;
-                        prev[edge.To] = edge.From;
-                        updated = true;
                     }
-                }
-
-                if (!updated)
-                {
-                    break;
-                }
-            }
-            foreach (var edge in edges)
-            {
-                if (double.IsPositiveInfinity(distances[edge.From]))
-                {
-                    continue;
-                }
-
-                var newDistance = distances[edge.From] + edge.Weight;
-
-                if (newDistance < distances[edge.To])
-                {
-                    Console.WriteLine("Undefined");
-                    return;
                 }
             }
             Console.WriteLine(distances[destination]);
-
             var path = GetPath(prev, destination);
 
             Console.WriteLine(string.Join("->", path));
         }
-
         private static Stack<int> GetPath(int[] prev, int destination)
         {
             var result = new Stack<int>();
@@ -118,6 +94,34 @@
             }
 
             return result;
+        }
+
+        private static Stack<int> TopologicalSort()
+        {
+            var visited = new bool[edges.Length];
+            var sorted = new Stack<int>();
+
+            for (int i = 1; i < edges.Length; i++)
+            {
+                DFS(i, visited, sorted);
+            }
+            return sorted;
+        }
+
+        private static void DFS(int node, bool[] visited, Stack<int> sorted)
+        {
+            if (visited[node])
+            {
+                return;
+            }
+
+            visited[node] = true;
+
+            foreach (var edge in edges[node])
+            {
+                DFS(edge.To, visited, sorted);
+            }
+            sorted.Push(node);
         }
     }
 }
