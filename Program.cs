@@ -1,6 +1,4 @@
-﻿using Wintellect.PowerCollections;
-
-namespace Most_Reliable_Path
+﻿namespace CheapTownTour
 {
     public class Edge
     {
@@ -16,112 +14,72 @@ namespace Most_Reliable_Path
         }
     }
 
-    //using Dijkstra
     internal class Program
     {
-        private static List<Edge>[] graph;
+        private static List<Edge> graph;
 
+        //using Kruskal
         static void Main(string[] args)
         {
-            int nodesCount = int.Parse(Console.ReadLine());
-            int edgesCount = int.Parse(Console.ReadLine());
+            int numberOfTowns = int.Parse(Console.ReadLine());
+            int numberOfStreets = int.Parse(Console.ReadLine());
 
-            var result = new List<Edge>[nodesCount];
+            var result = new List<Edge>();
 
-
-            for (int i = 0; i < nodesCount; i++)
+            for (int i = 0; i < numberOfStreets; i++)
             {
-                result[i] = new List<Edge>();
-            }
-
-
-            for (int i = 0; i < edgesCount; i++)
-            {
-                var node = Console.ReadLine()
+                var street = Console.ReadLine()
                     .Split(" - ")
                     .Select(int.Parse)
                     .ToArray();
 
-                var first = node[0];
-                var second = node[1];
-                var weight = node[2];
+                var first = street[0];
+                var second = street[1];
+                var weigth = street[2];
 
-                var edge = new Edge
+                result.Add(new Edge
                 {
                     First = first,
                     Second = second,
-                    Weight = weight
-                };
-                result[first].Add(edge);
-                result[second].Add(edge);
+                    Weight = weigth,
+                });
             }
-            var source = int.Parse(Console.ReadLine());
-            var destination = int.Parse(Console.ReadLine());
+            graph = result;
 
-            var distances = new double[nodesCount];
-            var prev = new int[nodesCount];
+            var sortedEdges = graph
+                .OrderBy(e => e.Weight)
+                .ToList();
 
-            Array.Fill(distances, double.NegativeInfinity);
-            Array.Fill(prev, -1);
+            var root = new int[numberOfTowns];
 
-            distances[source] = 100;
-
-            var queue = new OrderedBag<int>(
-                Comparer<int>.Create
-                    ((f, s) => distances[s].CompareTo(distances[f])));
-
-            queue.Add(source);
-
-            while (queue.Count > 0)
+            for (int i = 0; i < numberOfTowns; i++)
             {
-                var node = queue.RemoveFirst();
+                root[i] = i;
+            }
+            var totalCost = 0;
 
-                if (node == destination)
+            foreach (var edge in sortedEdges)
+            {
+                var firstRoot = GetRoot(edge.First, root);
+                var secondRoot = GetRoot(edge.Second, root);
+
+                if (firstRoot != secondRoot)
                 {
-                    break;
-                }
-
-                var children = graph[node];
-
-                foreach (var edge in children)
-                {
-                    var childNode = edge.First == node ? edge.Second : edge.First;
-
-                    if (double.IsNegativeInfinity(distances[childNode]))
-                    {
-                        queue.Add(childNode);
-                    }
-
-                    var newDistance = distances[node] * edge.Weight / 100.0;
-
-                    if (newDistance > distances[childNode])
-                    {
-                        distances[childNode] = newDistance;
-                        prev[childNode] = node;
-
-                        queue = new OrderedBag<int>(queue,
-                             Comparer<int>.Create
-                                 ((f, s) => distances[s].CompareTo(distances[f])));
-                    }
+                    root[firstRoot] = secondRoot;
+                    totalCost += edge.Weight;
                 }
             }
-            Console.WriteLine(Math.Round(distances[destination], 2));
-            var path = GetPath(prev, destination);
 
-            Console.WriteLine(string.Join("->", path));
+            Console.WriteLine(totalCost);
         }
 
-        private static Stack<int> GetPath(int[] prev, int destination)
+        private static int GetRoot(int node, int[] root)
         {
-            var result = new Stack<int>();
-
-            while (destination != -1)
+            while (node != root[node])
             {
-                result.Push(destination);
-                destination = prev[destination];
+                node = root[node];
             }
-
-            return result;
+            return node;
         }
     }
 }
