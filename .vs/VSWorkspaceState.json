@@ -1,13 +1,12 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Algorithms",
-    "\\Algorithms\\Advanced",
-    "\\Algorithms\\Advanced\\Dyncamic Optimization",
     "\\Algorithms\\Advanced\\Max Flow",
-    "\\Algorithms\\Basics",
-    "\\Data Structures\\Advanced"
+    "\\Data Structures",
+    "\\Data Structures\\Advanced",
+    "\\Data Structures\\Advanced\\LessFamousTrees",
+    "\\Data Structures\\Advanced\\LessFamousTrees\\IntervalTree"
   ],
-  "SelectedNode": "\\Data Structures",
+  "SelectedNode": "\\Data Structures\\Advanced\\LessFamousTrees",
   "PreviewInSolutionExplorer": false
 }
