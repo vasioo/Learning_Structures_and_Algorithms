@@ -1,82 +1,78 @@
-﻿namespace ArticulationPoints
+﻿namespace ElectricalSubstationNetwork
 {
     internal class Program
     {
         private static List<int>[] graph;
-        private static int[] depths;
-        private static int[] lowPoints;
-        private static int[] parent;
-        private static bool[] visited;
-        private static List<int> articulationPoints;
+        private static List<int>[] reversedGraph;
+        private static Stack<int> sorted;
 
         static void Main(string[] args)
         {
             int nodesCount = int.Parse(Console.ReadLine());
             int linesCount = int.Parse(Console.ReadLine());
 
-            graph = ReadGraph(nodesCount, linesCount);
-            depths = new int[nodesCount];
-            lowPoints = new int[nodesCount];
-            parent = new int[nodesCount];
-            visited = new bool[nodesCount];
-            articulationPoints = new List<int>();
-            Array.Fill(parent, -1);
+            (graph, reversedGraph) = ReadGraph(nodesCount, linesCount);
+
+            sorted = TopologicalSorting();
+
+            var visited = new bool[nodesCount];
+
+            while (sorted.Count > 0)
+            {
+                var node = sorted.Pop();
+
+                if (visited[node])
+                {
+                    continue;
+                }
+
+                var component = new Stack<int>();
+                DFS(reversedGraph, node, visited, component);
+
+                Console.WriteLine(string.Join(", ",component));
+            }
+        }
+
+        private static Stack<int> TopologicalSorting()
+        {
+            var stack = new Stack<int>();
+            var visited = new bool[graph.Length];
 
             for (int node = 0; node < graph.Length; node++)
             {
                 if (!visited[node])
                 {
-                    FinddArticulationPoint(node, 1);
+                    DFS(graph, node, visited, stack);
                 }
             }
-            Console.WriteLine(string.Join(", ", articulationPoints));
+            return stack;
         }
 
-        private static void FinddArticulationPoint(int node, int depth)
+        private static void DFS(List<int>[] targetGraph, int node, bool[] visited, Stack<int> stack)
         {
+            if (visited[node])
+            {
+                return;
+            }
+
             visited[node] = true;
-            lowPoints[node] = depth;
-            depths[node] = depth;
 
-            var childCount = 0;
-            var isArticulationPoint = false;
-
-            foreach (var child in graph[node])
+            foreach (var child in targetGraph[node])
             {
-                if (!visited[child])
-                {
-                    parent[child] = node;
-                    FinddArticulationPoint(child, depth + 1);
-                    childCount++;
-
-                    if (lowPoints[child] >= depth)
-                    {
-                        isArticulationPoint = true;
-                    }
-
-                    lowPoints[node] = Math.Min(lowPoints[node], lowPoints[child]);
-                }
-
-                else if (parent[node] != child)
-                {
-                    lowPoints[node] = Math.Min(lowPoints[node], depths[child]);
-                }
-            }
-
-            if (parent[node] == -1 && childCount > 1
-                || parent[node] != -1 && isArticulationPoint)
-            {
-                articulationPoints.Add(node);
+                DFS(targetGraph, child, visited, stack);
             }
         }
 
-        private static List<int>[] ReadGraph(int nodesCount, int linesCount)
+        private static (List<int>[] original, List<int>[] reversed)
+            ReadGraph(int nodesCount, int linesCount)
         {
-            var result = new List<int>[nodesCount];
+            var original = new List<int>[nodesCount];
+            var reversed = new List<int>[nodesCount];
 
-            for (int node = 0; node < result.Length; node++)
+            for (int node = 0; node < original.Length; node++)
             {
-                result[node] = new List<int>();
+                original[node] = new List<int>();
+                reversed[node] = new List<int>();
             }
 
             for (int i = 0; i < linesCount; i++)
@@ -86,16 +82,17 @@
                     .Select(int.Parse)
                     .ToArray();
 
-                var first = parts[0];
+                var node = parts[0];
 
                 for (int j = 1; j < parts.Length; j++)
                 {
-                    var second = parts[j];
-                    result[first].Add(second);
-                    result[second].Add(first);
+                    var child = parts[j];
+
+                    original[node].Add(child);
+                    reversed[child].Add(node);
                 }
             }
-            return result;
+            return (original, reversed);
         }
     }
 }
