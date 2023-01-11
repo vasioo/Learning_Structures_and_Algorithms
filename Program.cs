@@ -1,102 +1,121 @@
-﻿namespace Kosaraju_Sharir
+﻿namespace MaxFlow
 {
-    class Edges
-    {
-
-    }
-
     internal class Program
     {
-        private static List<int>[] graph;
-        private static List<int>[] reversedGraph;
-        private static Stack<int> sorted;
+        //creating the graph the numbers are the capacity
+        //if there is no capacity it is not connected
+        //0,10,10,0,0,0
+        //0,0,2,8,0,0
+        //0,0,0,0,9,0
+        //0,0,0,0,0,10 
+        //0,0,0,6,0,10
+        //0,0,0,0,0,0
 
+        private static int[,] graph;
+        private static int[] parents;
+
+        //using Edmonds-Karp algorithm
         static void Main(string[] args)
         {
-            int nodesCount = int.Parse(Console.ReadLine());
-            int linesCount = int.Parse(Console.ReadLine());
+            var nodes = int.Parse(Console.ReadLine());
 
-            (graph, reversedGraph)
-                = ReadGraph(nodesCount, linesCount);
+            graph = ReadGraph(nodes);
 
-            sorted = TopologicalSorting();
+            var source = int.Parse(Console.ReadLine());
+            var target = int.Parse(Console.ReadLine());
 
-            var visited = new bool[nodesCount];
+            parents = new int[nodes];
+            Array.Fill(parents, -1);
 
-            while (sorted.Count > 0)
+            var maxFlow = 0;
+            while (BFS(source, target))
             {
-                var node = sorted.Pop();
+                var currentFlow = GetCurrentFlow(source, target);
 
-                if (visited[node])
+                maxFlow += currentFlow;
+
+                ApplyCurrentFlow(source, target, currentFlow);
+            }
+            Console.WriteLine(maxFlow);
+        }
+
+        private static void ApplyCurrentFlow(int source, int target, int currentFlow)
+        {
+            var node = target;
+
+            while (node != source)
+            {
+                var parent = parents[node];
+                graph[parent, node] -= currentFlow;
+                node = parent;
+            }
+        }
+
+        private static int GetCurrentFlow(int source, int target)
+        {
+            var node = target;
+            var minFlow = int.MaxValue;
+
+            while (node != source)
+            {
+                var parent = parents[node];
+
+                var flow = graph[parent, node];
+
+                if (flow < minFlow)
                 {
-                    continue;
+                    minFlow = flow;
                 }
-
-                var component = new Stack<int>();
-
-                DFS(reversedGraph,node, visited, component);
-
-                Console.WriteLine($"{{{string.Join(", ", component)}}}");
+                node = parent;
             }
+            return minFlow;
         }
 
-        private static Stack<int> TopologicalSorting()
+        private static bool BFS(int source, int target)
         {
-            var result = new Stack<int>();
-            var visited = new bool[graph.Length];
+            var queue = new Queue<int>();
+            var visited = new bool[graph.GetLength(0)];
 
-            for (int i = 0; i < graph.Length; i++)
+            queue.Enqueue(source);
+            visited[source] = true;
+
+            while (queue.Count > 0)
             {
-                DFS(graph, i, visited, result);
-            }
+                var node = queue.Dequeue();
 
-            return result;
+                for (int child = 0; child < graph.GetLength(1); child++)
+                {
+                    if (!visited[node] && graph[node, child] > 0)
+                    {
+                        visited[child] = true;
+                        queue.Enqueue(child);
+                        parents[child] = node;
+                    }
+                }
+            }
+            return visited[target];
         }
 
-        private static void DFS(List<int>[] source, int node, bool[] visited, Stack<int> result)
+        private static int[,] ReadGraph(int nodes)
         {
-            if (visited[node])
-            {
-                return;
-            }
-            visited[node] = true;
+            var result = new int[nodes, nodes];
 
-            foreach (var child in source[node])
+            for (int node = 0; node < nodes; node++)
             {
-                DFS(source,child, visited, result);
-            }
-            result.Push(node);
-        }
-
-        //reversing it(returns both of them in a tuple)
-        private static (List<int>[] original, List<int>[] reversed) ReadGraph(int nodesCount, int linesCount)
-        {
-            var result = new List<int>[nodesCount];
-            var reversed = new List<int>[nodesCount];
-
-            for (int i = 0; i < nodesCount; i++)
-            {
-                result[i] = new List<int>();
-            }
-
-            for (int i = 0; i < linesCount; i++)
-            {
-                var input = Console.ReadLine()
-                    .Split(", ")
+                var capacities = Console.ReadLine()
+                    .Split(',')
                     .Select(int.Parse)
                     .ToArray();
 
-                var node = input[0];
-
-                for (int j = 1; j < input.Length; j++)
+                for (int child = 0; child < capacities.Length; child++)
                 {
-                    var child = input[j];
-                    result[i].Add(child);
+                    var capacity = capacities[child];
 
-                    reversed[child].Add(node);
+                    result[node, child] = capacity;
                 }
             }
-            return (result, reversed);
+            return result;
         }
+
     }
 }
