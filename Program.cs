@@ -1,121 +1,101 @@
-﻿namespace MaxFlow
+﻿namespace ArticulationPoints
 {
     internal class Program
     {
-        //creating the graph the numbers are the capacity
-        //if there is no capacity it is not connected
-        //0,10,10,0,0,0
-        //0,0,2,8,0,0
-        //0,0,0,0,9,0
-        //0,0,0,0,0,10 
-        //0,0,0,6,0,10
-        //0,0,0,0,0,0
+        private static List<int>[] graph;
+        private static int[] depths;
+        private static int[] lowPoints;
+        private static int[] parent;
+        private static bool[] visited;
+        private static List<int> articulationPoints;
 
-        private static int[,] graph;
-        private static int[] parents;
-
-        //using Edmonds-Karp algorithm
         static void Main(string[] args)
         {
-            var nodes = int.Parse(Console.ReadLine());
+            int nodesCount = int.Parse(Console.ReadLine());
+            int linesCount = int.Parse(Console.ReadLine());
 
-            graph = ReadGraph(nodes);
+            graph = ReadGraph(nodesCount, linesCount);
+            depths = new int[nodesCount];
+            lowPoints = new int[nodesCount];
+            parent = new int[nodesCount];
+            visited = new bool[nodesCount];
+            articulationPoints = new List<int>();
+            Array.Fill(parent, -1);
 
-            var source = int.Parse(Console.ReadLine());
-            var target = int.Parse(Console.ReadLine());
-
-            parents = new int[nodes];
-            Array.Fill(parents, -1);
-
-            var maxFlow = 0;
-            while (BFS(source, target))
+            for (int node = 0; node < graph.Length; node++)
             {
-                var currentFlow = GetCurrentFlow(source, target);
-
-                maxFlow += currentFlow;
-
-                ApplyCurrentFlow(source, target, currentFlow);
-            }
-            Console.WriteLine(maxFlow);
-        }
-
-        private static void ApplyCurrentFlow(int source, int target, int currentFlow)
-        {
-            var node = target;
-
-            while (node != source)
-            {
-                var parent = parents[node];
-                graph[parent, node] -= currentFlow;
-                node = parent;
-            }
-        }
-
-        private static int GetCurrentFlow(int source, int target)
-        {
-            var node = target;
-            var minFlow = int.MaxValue;
-
-            while (node != source)
-            {
-                var parent = parents[node];
-
-                var flow = graph[parent, node];
-
-                if (flow < minFlow)
+                if (!visited[node])
                 {
-                    minFlow = flow;
+                    FinddArticulationPoint(node, 1);
                 }
-                node = parent;
             }
-            return minFlow;
+            Console.WriteLine(string.Join(", ", articulationPoints));
         }
 
-        private static bool BFS(int source, int target)
+        private static void FinddArticulationPoint(int node, int depth)
         {
-            var queue = new Queue<int>();
-            var visited = new bool[graph.GetLength(0)];
+            visited[node] = true;
+            lowPoints[node] = depth;
+            depths[node] = depth;
 
-            queue.Enqueue(source);
-            visited[source] = true;
+            var childCount = 0;
+            var isArticulationPoint = false;
 
-            while (queue.Count > 0)
+            foreach (var child in graph[node])
             {
-                var node = queue.Dequeue();
-
-                for (int child = 0; child < graph.GetLength(1); child++)
+                if (!visited[child])
                 {
-                    if (!visited[node] && graph[node, child] > 0)
+                    parent[child] = node;
+                    FinddArticulationPoint(child, depth + 1);
+                    childCount++;
+
+                    if (lowPoints[child] >= depth)
                     {
-                        visited[child] = true;
-                        queue.Enqueue(child);
-                        parents[child] = node;
+                        isArticulationPoint = true;
                     }
+
+                    lowPoints[node] = Math.Min(lowPoints[node], lowPoints[child]);
+                }
+
+                else if (parent[node] != child)
+                {
+                    lowPoints[node] = Math.Min(lowPoints[node], depths[child]);
                 }
             }
-            return visited[target];
+
+            if (parent[node] == -1 && childCount > 1
+                || parent[node] != -1 && isArticulationPoint)
+            {
+                articulationPoints.Add(node);
+            }
         }
 
-        private static int[,] ReadGraph(int nodes)
+        private static List<int>[] ReadGraph(int nodesCount, int linesCount)
         {
-            var result = new int[nodes, nodes];
+            var result = new List<int>[nodesCount];
 
-            for (int node = 0; node < nodes; node++)
+            for (int node = 0; node < result.Length; node++)
             {
-                var capacities = Console.ReadLine()
-                    .Split(',')
+                result[node] = new List<int>();
+            }
+
+            for (int i = 0; i < linesCount; i++)
+            {
+                var parts = Console.ReadLine()
+                    .Split(", ")
                     .Select(int.Parse)
                     .ToArray();
 
-                for (int child = 0; child < capacities.Length; child++)
-                {
-                    var capacity = capacities[child];
+                var first = parts[0];
 
-                    result[node, child] = capacity;
+                for (int j = 1; j < parts.Length; j++)
+                {
+                    var second = parts[j];
+                    result[first].Add(second);
+                    result[second].Add(first);
                 }
             }
             return result;
         }
-
     }
 }
