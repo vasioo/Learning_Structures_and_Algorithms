@@ -1,54 +1,57 @@
-﻿namespace Longest_IncreasingSubsequence
+﻿namespace CableMerchant
 {
     internal class Program
     {
+        private static List<int> prices;
+        private static int[] bestPrices;
+
         static void Main(string[] args)
         {
-            var numbers = Console.ReadLine()
+            prices = new List<int> { 0 };
+
+            prices.AddRange(Console.ReadLine()
                 .Split()
-                .Select(int.Parse)
-                .ToArray();
+                .Select(int.Parse));
 
-            var lenght = new int[numbers.Length];
-            var prev = new int[numbers.Length];
+            bestPrices = new int[prices.Count];
 
-            var bestLength = 0;
-            var lastIndex = 0;
+            var connectorPrice = int.Parse(Console.ReadLine());
 
-            for (int i = 0; i < numbers.Length; i++)
+            for (int length = 1; length < prices.Count; length++)
             {
-                prev[i] = -1;
+                var bestPrice = CutCable(length, connectorPrice);
 
-                var currentNumber = numbers[i];
-                var currentBestSequence = 1;
-
-                for (int j = i - 1; j >= 0; j--)
-                {
-                    var prevNumber = numbers[j];
-
-                    if (prevNumber < currentNumber
-                        && lenght[j] + 1 >= currentBestSequence)
-                    {
-                        currentBestSequence = lenght[j] + 1;
-                        prev[i] = j;
-                    }
-                }
-
-                if (currentBestSequence > bestLength)
-                {
-                    bestLength = currentBestSequence;
-                    lastIndex = i;
-                }
-
-                lenght[i] = currentBestSequence;
+                Console.WriteLine(bestPrice);
             }
-            Console.WriteLine("Best sequence of numbers:");
+        }
 
-            while (lastIndex != -1)
+        private static int CutCable(int length, int connectorPrice)
+        {
+            if (length == 0)
             {
-                Console.WriteLine(numbers[lastIndex]);
-                lastIndex = prev[lastIndex];
+                return 0;
             }
+
+            if (bestPrices[length] != 0)
+            {
+                return bestPrices[length];
+            }
+
+            var bestPrice = prices[length];
+
+            for (int i = 1; i < length; i++)
+            {
+                var currentPrice
+                    = prices[i] + CutCable(length - i, connectorPrice) - 2 * connectorPrice;
+
+                if (currentPrice > bestPrice)
+                {
+                    bestPrice = currentPrice;
+                }
+            }
+            bestPrices[length] = bestPrice;
+
+            return bestPrice;
         }
     }
 }
