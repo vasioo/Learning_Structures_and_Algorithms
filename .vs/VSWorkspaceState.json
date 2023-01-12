@@ -1,12 +1,13 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Algorithms\\Advanced\\Max Flow",
-    "\\Data Structures",
+    "\\Algorithms",
+    "\\Algorithms\\Advanced",
+    "\\Algorithms\\Advanced\\Exercises",
     "\\Data Structures\\Advanced",
     "\\Data Structures\\Advanced\\LessFamousTrees",
     "\\Data Structures\\Advanced\\LessFamousTrees\\IntervalTree"
   ],
-  "SelectedNode": "\\Data Structures\\Advanced\\LessFamousTrees",
+  "SelectedNode": "\\Algorithms\\Advanced\\Exercises\\MaximumTasksAssignment",
   "PreviewInSolutionExplorer": false
 }
