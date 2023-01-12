@@ -1,57 +1,46 @@
-﻿namespace CableMerchant
+﻿namespace BattlePoints
 {
     internal class Program
     {
-        private static List<int> prices;
-        private static int[] bestPrices;
-
         static void Main(string[] args)
         {
-            prices = new List<int> { 0 };
-
-            prices.AddRange(Console.ReadLine()
+            var requiredEnergy = Console.ReadLine()
                 .Split()
-                .Select(int.Parse));
+                .Select(int.Parse)
+                .ToArray();
 
-            bestPrices = new int[prices.Count];
+            var battlePoints = Console.ReadLine()
+                .Split()
+                .Select(int.Parse)
+                .ToArray();
 
-            var connectorPrice = int.Parse(Console.ReadLine());
+            var enemies = requiredEnergy.Length;
 
-            for (int length = 1; length < prices.Count; length++)
+            var initialEnergy = int.Parse(Console.ReadLine());
+
+            var dp = new int[enemies + 1, initialEnergy + 1];
+
+            for (int row = 1; row < dp.GetLength(0); row++)
             {
-                var bestPrice = CutCable(length, connectorPrice);
+                var enemyIndex = row - 1;
+                var enemyEnergy = requiredEnergy[enemyIndex];
+                var enemyBattlePoints = battlePoints[enemyIndex];
 
-                Console.WriteLine(bestPrice);
-            }
-        }
-
-        private static int CutCable(int length, int connectorPrice)
-        {
-            if (length == 0)
-            {
-                return 0;
-            }
-
-            if (bestPrices[length] != 0)
-            {
-                return bestPrices[length];
-            }
-
-            var bestPrice = prices[length];
-
-            for (int i = 1; i < length; i++)
-            {
-                var currentPrice
-                    = prices[i] + CutCable(length - i, connectorPrice) - 2 * connectorPrice;
-
-                if (currentPrice > bestPrice)
+                for (int energy = 1; energy < dp.GetLength(1); energy++)
                 {
-                    bestPrice = currentPrice;
+                    var skip = dp[row - 1, energy];
+
+                    if (enemyEnergy > energy)
+                    {
+                        dp[row, energy] = skip;
+                        continue;
+                    }
+                    var take = enemyBattlePoints + dp[row - 1, energy - enemyEnergy];
+
+                    dp[row, energy] = Math.Max(skip, take);
                 }
             }
-            bestPrices[length] = bestPrice;
-
-            return bestPrice;
+            Console.WriteLine(dp[enemies, initialEnergy]);
         }
     }
 }
