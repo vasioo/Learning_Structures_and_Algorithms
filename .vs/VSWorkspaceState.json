@@ -3,11 +3,8 @@
     "",
     "\\Algorithms",
     "\\Algorithms\\Advanced",
-    "\\Algorithms\\Advanced\\Exercises",
-    "\\Data Structures\\Advanced",
-    "\\Data Structures\\Advanced\\LessFamousTrees",
-    "\\Data Structures\\Advanced\\LessFamousTrees\\IntervalTree"
+    "\\Algorithms\\Advanced\\Exercises"
   ],
-  "SelectedNode": "\\Algorithms\\Advanced\\Exercises\\MaximumTasksAssignment",
+  "SelectedNode": "\\Data Structures",
   "PreviewInSolutionExplorer": false
 }
